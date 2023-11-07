@@ -46,6 +46,12 @@ interface ISocialLogin {
 	avatar?: string;
 }
 
+//Update User Data
+interface IUpdateUserData {
+	name?: string;
+	email?: string;
+}
+
 export const registrationUser = CatchAsyncErrors(async(req: Request, res: Response, next:NextFunction) => {
 	try {
 		const { name, email, password } = req.body;
@@ -210,6 +216,8 @@ export const updateAccessToken = CatchAsyncErrors(async(req: Request, res: Respo
 			expiresIn: '3d',
 		});
 
+		req.user = user;
+
 		res.cookie('access_token', accessToken, accessTokenOptions);
 		res.cookie('refresh_token', refreshToken, refreshTokenOptions);
 
@@ -247,3 +255,38 @@ export const socialLogin = CatchAsyncErrors(async(req: Request, res: Response, n
 		return next(new ErrorHandler(error.message, 400));
 	}
 });
+
+//Update user data
+export const updateUserData = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { name, email } = req.body as IUpdateUserData;
+		const userId = req.user?._id;
+		const user = await userModel.findById(userId);
+
+		if(email && user){
+			const isEmailExist = await userModel.findOne({ email });
+			if(isEmailExist){
+				return next(new ErrorHandler('Email already exist', 400));
+			};
+			user.email = email;
+		};
+
+		if(name && user){
+			user.name = name;
+		};
+
+		await user?.save();
+
+		await redis.set(userId, JSON.stringify(user));
+
+		res.status(201).json({
+			success: true,
+			user
+		});
+
+	} catch (error:any) {
+		return next(new ErrorHandler(error.message, 400));
+	}
+});
+
+
