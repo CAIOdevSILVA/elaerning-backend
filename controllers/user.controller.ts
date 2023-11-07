@@ -4,12 +4,13 @@ import { CatchAsyncErrors } from '../middleware/catchAsyncErrors';
 import ErrorHandler from '../utils/ErrorHandler';
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 import ejs from 'ejs';
-
-import dotenv from 'dotenv';
 import path from 'path';
 import sendMailToUser from '../utils/sendMails';
 import { accessTokenOptions, refreshTokenOptions, sendToken } from '../utils/jwt';
 import { redis } from '../utils/redis';
+
+import dotenv from 'dotenv';
+import { getUserById } from '../services/user.service';
 dotenv.config();
 
 //Register user
@@ -209,6 +210,16 @@ export const updateAccessToken = CatchAsyncErrors(async(req: Request, res: Respo
 			status: 'success',
 			accessToken
 		});
+	} catch (error:any) {
+		return next(new ErrorHandler(error.message, 400));
+	}
+});
+
+//get user data
+export const getUserData = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const userId = req.user?._id
+		getUserById(userId, res);
 	} catch (error:any) {
 		return next(new ErrorHandler(error.message, 400));
 	}
