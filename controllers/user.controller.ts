@@ -39,6 +39,13 @@ interface ILoginRequest {
 	password: string;
 }
 
+//Social Login
+interface ISocialLogin {
+	name: string;
+	email: string;
+	avatar?: string;
+}
+
 export const registrationUser = CatchAsyncErrors(async(req: Request, res: Response, next:NextFunction) => {
 	try {
 		const { name, email, password } = req.body;
@@ -218,8 +225,24 @@ export const updateAccessToken = CatchAsyncErrors(async(req: Request, res: Respo
 //get user data
 export const getUserData = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
 	try {
-		const userId = req.user?._id
+		const userId = req.user?._id;
 		getUserById(userId, res);
+	} catch (error:any) {
+		return next(new ErrorHandler(error.message, 400));
+	};
+});
+
+//Social login
+export const socialLogin = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { email, name, avatar } = req.body as ISocialLogin;
+		const user = await userModel.findOne({ email });
+		if(!user){
+			const newUser = await userModel.create({ email, name, avatar });
+			sendToken(newUser, 200, res);
+		} else {
+			sendToken(user, 200, res);
+		};
 	} catch (error:any) {
 		return next(new ErrorHandler(error.message, 400));
 	}
