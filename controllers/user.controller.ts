@@ -52,6 +52,17 @@ interface IUpdateUserData {
 	email?: string;
 }
 
+//Update password
+interface IUpdatePassword {
+	oldPassword: string;
+	newPassword: string;
+}
+
+//Update profile picture
+interface IUpdateProfilePicture {
+	avatar: string;
+}
+
 export const registrationUser = CatchAsyncErrors(async(req: Request, res: Response, next:NextFunction) => {
 	try {
 		const { name, email, password } = req.body;
@@ -289,4 +300,43 @@ export const updateUserData = CatchAsyncErrors(async(req: Request, res: Response
 	}
 });
 
+//upadate password
+export const updatePassword = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { oldPassword, newPassword } = req.body as IUpdatePassword;
+		if(!oldPassword || !newPassword){
+			return next(new ErrorHandler('Please enter old and new pasword', 400));
+		};
 
+		const user = await userModel.findById(req.user?._id).select('+password');
+		if(user?.password === undefined){
+			return next(new ErrorHandler('Invalid user', 400));
+		};
+
+		const isPasswordMatch = await user?.comparePassword(oldPassword);
+		if(!isPasswordMatch){
+			return next(new ErrorHandler('Invalid old password', 400));
+		};
+
+		user.password = newPassword;
+		await user.save();
+
+		await redis.set(req.user?._id, JSON.stringify(user));
+
+		res.status(201).json({
+			success: true,
+			user
+		});
+	} catch (error:any) {
+		return next(new ErrorHandler(error.message, 400));
+	}
+});
+
+//update profile picture
+export const updateProfilePicture = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+
+	} catch (error:any) {
+		return next(new ErrorHandler(error.message, 400));
+	}
+});
