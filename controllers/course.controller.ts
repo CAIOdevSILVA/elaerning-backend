@@ -3,6 +3,7 @@ import { CatchAsyncErrors } from '../middleware/catchAsyncErrors';
 import ErrorHandler from '../utils/ErrorHandler';
 import cloudinary from 'cloudinary';
 import { createCourse } from '../services/course.service';
+import { courseModel } from '../models/course.model';
 
 //upload course
 export const uploadCourse = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +29,7 @@ export const uploadCourse = CatchAsyncErrors(async(req: Request, res: Response, 
 });
 
 //edit course
-export const editCours = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+export const editCourse = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
 	try {
 		const data = req.body;
 		const thumbnail = data.thumbnail;
@@ -46,7 +47,18 @@ export const editCours = CatchAsyncErrors(async(req: Request, res: Response, nex
 			};
 		};
 
-		
+		const courseId = req.params.id;
+
+		const course = await courseModel.findByIdAndUpdate(courseId, {
+			$set: data,
+		},
+		{ new: true },
+		);
+
+		res.status(201).json({
+			success: true,
+			course,
+		});
 	} catch (error: any) {
 		return next(new ErrorHandler(error.message, 400));
 	};
