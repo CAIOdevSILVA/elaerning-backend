@@ -99,7 +99,7 @@ const courseSchema = new Schema<ICourse>({
 	},
 	thumbnail: {
 		public_id: {
-			required: true,
+			required: false,
 			type: String,
 		},
 		url: {
