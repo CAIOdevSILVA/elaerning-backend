@@ -24,7 +24,7 @@ export const uploadCourse = CatchAsyncErrors(async(req: Request, res: Response, 
 
 		createCourse(data, res, next);
 	} catch (error: any) {
-		return next(new ErrorHandler(error.message, 400))
+		return next(new ErrorHandler(error.message, 500))
 	}
 });
 
@@ -60,6 +60,34 @@ export const editCourse = CatchAsyncErrors(async(req: Request, res: Response, ne
 			course,
 		});
 	} catch (error: any) {
-		return next(new ErrorHandler(error.message, 400));
+		return next(new ErrorHandler(error.message, 500));
+	};
+});
+
+//get single course --- without purchasing -- everyone can access this route
+export const getSingleCourse = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const course = await courseModel.findById(req.params.id).select('-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links');
+
+		res.status(200).json({
+			success: true,
+			course
+		});
+	} catch (error: any) {
+		return next(new ErrorHandler(error.message, 500));
+	};
+});
+
+//get single course --- without purchasing -- everyone can access this route
+export const getAllCourse = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const course = await courseModel.find().select('-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links');
+
+		res.status(200).json({
+			success: true,
+			course
+		});
+	} catch (error: any) {
+		return next(new ErrorHandler(error.message, 500));
 	};
 });
