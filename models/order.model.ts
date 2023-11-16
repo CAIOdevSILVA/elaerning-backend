@@ -1,3 +1,4 @@
+import { truncate } from 'fs';
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface IOrder extends Document {
@@ -18,6 +19,6 @@ const orderSchema = new Schema<IOrder>({
 	payment_info: {
 		type: Object
 	}
-});
+}, { timestamps: true });
 
 export const orderModel: Model<IOrder> = mongoose.model('Order', orderSchema);
