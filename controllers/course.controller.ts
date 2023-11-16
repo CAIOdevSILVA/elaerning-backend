@@ -25,6 +25,13 @@ interface IAddAnswerData {
 	questionId: string;
 }
 
+//add review in course
+interface IReviewData {
+	review: string;
+	rating: number;
+	userId: string;
+}
+
 //upload course
 export const uploadCourse = CatchAsyncErrors(
 	async (req: Request, res: Response, next: NextFunction) => {
@@ -296,3 +303,52 @@ export const addAnswerInQuestion = CatchAsyncErrors(async(req: Request, res: Res
 	}
 });
 
+//add review in course
+export const addReview = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const userCourseList = req.user?.courses;
+		const courseId = req.params.id;
+		const { review, rating } = req.body as IReviewData;
+		const course = await courseModel.findById(courseId);
+
+		// check if courseId already exists in userCourseList based on _id
+		const courseExists = userCourseList?.some((course:any) => course._id.toString() === courseId.toString());
+
+		if(!courseExists){
+			return next(new ErrorHandler('You are not eligible to access this course', 400 ));
+		};
+
+		const reviewData: any = {
+			user: req.user,
+			rating,
+			comment: review
+		};
+
+		course?.reviews.push(reviewData);
+
+		let avg = 0; //inital value of rating
+		course?.reviews.forEach((rev: any) => {
+			avg += rev.rating;
+		});
+
+		if(course){
+			course.ratings = Number((avg / course.reviews.length).toFixed(1));
+		};
+
+		await course?.save();
+
+		const notification = {
+			title: 'New Review Received',
+			message: `${req.user?.name} has given a review in ${course?.name}`,
+		};
+
+		//create a notification
+
+		res.status(200).json({
+			success: true,
+			course
+		});
+	} catch (error: any) {
+		return next(new ErrorHandler(error.message, 500));
+	}
+});
