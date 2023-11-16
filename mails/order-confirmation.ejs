@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Order Confirmation</title>
+
+	<style>
+		body{
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		.container > div {
+			margin-top: 15px;
+		}
+		.container > div:last-child{
+			margin-bottom: 15px;
+		}
+	</style>
+</head>
+<body>
+	<div class='container'>
+		<div>
+			<h1>Your ELearning order is confirmed!</h1>
+			<p>and we're just as excited as you are</p>
+		</div>
+		<div>
+			<p>Order: <%= order._id %></p>
+			<p>Order Date: <%= order.date %></p>
+		</div>
+		<div>
+			<h3>Order Price: <%= order.price %></h3>
+		</div>
+	</div>
+</body>
+</html>

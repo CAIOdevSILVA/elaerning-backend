@@ -6,6 +6,7 @@ import { ErrorMiddleware } from './middleware/error';
 
 import userRouter from './routes/user.routes';
 import courseRouter from './routes/course.routes';
+import orderRouter from './routes/order.routes';
 
 export const app = express();
 doteenv.config();
@@ -22,8 +23,7 @@ app.use(cors({
 }));
 
 //routes
-app.use('/api/v1', userRouter);
-app.use('/api/v1', courseRouter);
+app.use('/api/v1', userRouter, orderRouter, courseRouter);
 
 //API Test
 app.get('/test', (req: Request, res: Response) => {
