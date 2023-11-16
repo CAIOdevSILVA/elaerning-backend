@@ -32,6 +32,13 @@ interface IReviewData {
 	userId: string;
 }
 
+//add reply in review
+interface IAddReviewData {
+	comment: string;
+	courseId: string;
+	reviewId: string;
+}
+
 //upload course
 export const uploadCourse = CatchAsyncErrors(
 	async (req: Request, res: Response, next: NextFunction) => {
@@ -352,3 +359,44 @@ export const addReview = CatchAsyncErrors(async(req: Request, res: Response, nex
 		return next(new ErrorHandler(error.message, 500));
 	}
 });
+
+//add reply in review
+export const addReplyInReview = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
+	try {
+		const {comment, reviewId, courseId} = req.body as IAddReviewData;
+		const course = await courseModel.findById(courseId);
+
+		if(!courseId){
+			return next(new ErrorHandler('Course not found', 404));
+		};
+
+		const review = course?.reviews?.find(
+			(rev: any) => rev._id.toString() === reviewId
+		);
+
+		if(!review) {
+			return next(new ErrorHandler('Review not found', 404));
+		};
+
+		const replyData: any = {
+			user: req.user,
+			comment,
+		};
+
+		if(!review.commentReplies){
+			review.commentReplies = [];
+		};
+
+		review.commentReplies?.push(replyData);
+
+		await course?.save();
+
+		res.status(200).json({
+			success: true,
+			course
+		});
+	} catch (error: any) {
+		return next(new ErrorHandler(error.message, 500));
+	}
+});
+
