@@ -4,6 +4,7 @@ import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.service";
 import { courseModel } from "../models/course.model";
+import { notificationModel } from '../models/notification.model';
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
 import path from 'path';
@@ -229,6 +230,12 @@ export const addQuestion = CatchAsyncErrors(
 			//add this question to our course content
 			courseContent?.questions.push(newQuestion);
 
+			await notificationModel.create({
+				user: req.user?._id,
+				title: 'New Question',
+				message: `You have a new question in ${courseContent.title}`
+			});
+
 			//save the updated course
 			await course?.save();
 
@@ -280,6 +287,11 @@ export const addAnswerInQuestion = CatchAsyncErrors(async(req: Request, res: Res
 
 		if(req.user?._id === question.user._id){
 			//create a notification
+			await notificationModel.create({
+				user: req.user?._id,
+				title: 'New Question Reply Received',
+				message: `You have a new question reply in ${courseContent.title}`
+			});
 		} else{
 			//send a email to user
 			const data = {
