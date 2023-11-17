@@ -74,7 +74,7 @@ export const createOrder = CatchAsyncErrors(async(req: Request, res: Response, n
 	}
 });
 
-//get all orders
+//get all orders -- only admin
 export const getAllOrders = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
 	try {
 		getAllOrdersService(res);
