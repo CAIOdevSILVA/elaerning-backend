@@ -65,10 +65,8 @@ export const createOrder = CatchAsyncErrors(async(req: Request, res: Response, n
 			message: `You have a new order from ${course?.name}`
 		});
 
-		console.log(course.purchased)
-		course.purchased ? course.purchased = Number(course.purchased +  1) : course.purchased;
+		await courseModel.findByIdAndUpdate(courseId, { $set: { purchased: course.purchased! + 1 } });
 
-		await course.save();
 
 		newOrder(data, res, next);
 	} catch (error: any) {
