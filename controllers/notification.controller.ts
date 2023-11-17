@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { notificationModel } from '../models/notification.model';
 import { CatchAsyncErrors } from '../middleware/catchAsyncErrors';
 import ErrorHandler from '../utils/ErrorHandler';
+import cron from 'node-cron';
 
 //get all notifications --only for admin
 export const getNotifications = CatchAsyncErrors(async(req: Request, res: Response, next: NextFunction) => {
@@ -38,4 +39,13 @@ export const updateNotificationStatus = CatchAsyncErrors(async(req: Request, res
 	} catch (error: any) {
 		return next(new ErrorHandler(error.message, 500));
 	}
+});
+
+//delete notification --only admin
+cron.schedule('0 0 0 * * *', async() => {
+	const thirdDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+	await notificationModel.deleteMany({ status: 'read', createdAt: { $lt: thirdDaysAgo } });
+
+	//todo dia à meia noite esse código vai ser executado e vai apagar as notificações
+	//que ja foram lidas e que ja passou 30 dias desde a criação delas.
 });
