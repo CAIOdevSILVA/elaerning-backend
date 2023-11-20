@@ -9,6 +9,7 @@ import courseRouter from './routes/course.routes';
 import orderRouter from './routes/order.routes';
 import { notificationRouter } from './routes/notification.routes';
 import analyticsRouter from './routes/analytics.routes';
+import layoutRouter from './routes/layout.routes';
 
 export const app = express();
 doteenv.config();
@@ -25,7 +26,14 @@ app.use(cors({
 }));
 
 //routes
-app.use('/api/v1', userRouter, orderRouter, courseRouter, notificationRouter, analyticsRouter);
+app.use('/api/v1',
+userRouter,
+orderRouter,
+courseRouter,
+notificationRouter,
+analyticsRouter,
+layoutRouter
+);
 
 //API Test
 app.get('/test', (req: Request, res: Response) => {
