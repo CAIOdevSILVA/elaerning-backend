@@ -125,7 +125,7 @@ export const getSingleCourse = CatchAsyncErrors(
 						"-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
 					);
 
-				await redis.set(courseId, JSON.stringify(course));
+				await redis.set(courseId, JSON.stringify(course), 'EX', 604800);//...'EX', 604800 > Significa que esse dado no redis vai expirar('EX') em 7 dias(604800).
 
 				res.status(200).json({
 					success: true,
